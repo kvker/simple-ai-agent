@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vercel AI SDK Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .chat-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-height: 300px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .user {
+      background: #e3f2fd;
+      color: #0d47a1;
+      margin-left: 20%;
+      text-align: right;
+    }
+
+    .ai {
+      background: #f1f8e9;
+      color: #1b5e20;
+      margin-right: 20%;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="chat-box" id="chatBox"></div>
+
+  <div class="input-area">
+    <input type="text" id="input" placeholder="输入消息..." />
+    <button id="sendBtn">发送</button>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chatBox');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // 辅助函数：添加消息气泡
+    function appendMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if(!text) return;
+
+      // 1. 显示用户消息
+      appendMessage('user', text);
+      input.value = '';
+
+      // 2. 创建 AI 消息气泡（初始为空）
+      const aiBubble = appendMessage('ai', '...');
+      aiBubble.textContent = ''; // 清空省略号
+
+      try {
+        // 3. 发起请求
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+
+        // 4. 使用 SDK 兼容的方式读取流
+        // Vercel AI SDK 输出的流是纯文本流，我们可以直接用 TextDecoderStream 解码
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while(true) {
+          const { done, value } = await reader.read();
+          if(done) break;
+
+          // 解码数据块
+          const chunk = decoder.decode(value);
+          // 直接追加到界面
+          aiBubble.textContent += chunk;
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+      } catch(error) {
+        console.error(error);
+        aiBubble.textContent += ' [出错了]';
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') sendMessage();
+    });
+  </script>
+
+</body>
+
+</html>
