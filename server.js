@@ -63,7 +63,7 @@ app.post('/api/chat', async (req, res) => {
   try {
     // --- 4. 配置 streamText ---
     const result = streamText({
-      model: deepseek('deepseek-chat'),
+      model: deepseek('deepseek-v4-flash'),
       system: '你是一个乐于助人的 AI 助手。如果用户需要查询天气或发送邮件，请务必使用提供的工具。',
       messages: [{ role: 'user', content: message }],
       tools, // 5. 注入工具
