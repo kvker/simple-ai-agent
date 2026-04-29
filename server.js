@@ -7,6 +7,7 @@ const deepseek = createDeepSeek({
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { streamText, stepCountIs, tool } = require('ai'); // 1. 引入 tool 函数
 const { z } = require('zod'); // 2. 引入 zod
 
@@ -16,6 +17,10 @@ const port = 3000;
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // --- 3. 定义工具 (Tools) ---
 const tools = {
