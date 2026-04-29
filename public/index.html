@@ -93,7 +93,7 @@
 
     async function sendMessage() {
       const text = input.value.trim();
-      if(!text) return;
+      if (!text) return;
 
       // 1. 显示用户消息
       appendMessage('user', text);
@@ -116,9 +116,9 @@
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
-        while(true) {
+        while (true) {
           const { done, value } = await reader.read();
-          if(done) break;
+          if (done) break;
 
           // 解码数据块
           const chunk = decoder.decode(value);
@@ -127,7 +127,7 @@
           chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-      } catch(error) {
+      } catch (error) {
         console.error(error);
         aiBubble.textContent += ' [出错了]';
       }
@@ -135,7 +135,7 @@
 
     sendBtn.addEventListener('click', sendMessage);
     input.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter') sendMessage();
+      if (e.key === 'Enter') sendMessage();
     });
   </script>
 

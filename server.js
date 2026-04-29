@@ -14,7 +14,7 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
-app.use(express.static('.'));
+app.use(express.static('public'));
 app.use(express.json());
 
 // --- 3. 定义工具 (Tools) ---
@@ -86,6 +86,10 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`🚀 服务已启动: http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`🚀 服务已启动: http://localhost:${port}`);
+  });
+}
+
+module.exports = app;
